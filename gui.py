@@ -1,5 +1,7 @@
 import os
+import base64
 import asyncio
+import tempfile
 from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -55,10 +57,21 @@ def run_download(url: str, quality_setting: str):
         'progress_hooks': [progress_hook],
         'js_runtimes': {'node': {}},
         'remote_components': ['ejs:github'],
-        'cookiesfrombrowser': ('firefox',),
         'quiet': True,
         'no_warnings': True,
     }
+
+    cookies_base64 = os.environ.get("COOKIES_BASE64")
+    cookies_file = os.environ.get("COOKIES_FILE")
+    if cookies_base64:
+        tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
+        tmp.write(base64.b64decode(cookies_base64).decode("utf-8"))
+        tmp.close()
+        ydl_opts["cookiefile"] = tmp.name
+    elif cookies_file and os.path.isfile(cookies_file):
+        ydl_opts["cookiefile"] = cookies_file
+    else:
+        ydl_opts["cookiesfrombrowser"] = ('firefox',)
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
