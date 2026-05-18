@@ -59,8 +59,6 @@ def run_download(url: str, quality_setting: str):
         'extract_audio': True,
         'audio_format': 'mp3',
         'progress_hooks': [progress_hook],
-        'js_runtimes': {'node': {}},
-        'remote_components': ['ejs:github'],
         'quiet': True,
         'no_warnings': True,
     }
