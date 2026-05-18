@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Audio Downloader | Premium Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #ff4d4d;
+            --primary-glow: rgba(255, 77, 77, 0.4);
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 100%);
+        }
+
+        /* Animated background elements */
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #ff4d4d 0%, #ff0080 100%);
+            filter: blur(80px);
+            opacity: 0.15;
+            border-radius: 50%;
+            z-index: -1;
+            animation: move 20s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(-20%, -20%) scale(1); }
+            to { transform: translate(20%, 20%) scale(1.1); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            z-index: 10;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        .quality-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .quality-btn {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--glass-border);
+            padding: 0.75rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .quality-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .download-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff4d4d 0%, #f93822 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(255, 77, 77, 0.2);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(255, 77, 77, 0.3);
+        }
+
+        .download-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Progress Area */
+        .progress-container {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            display: none;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff4d4d, #ff0080);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px #ff4d4d;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .filename {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Success/Error animations */
+        .status-msg {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-error { color: #f87171; }
+        .status-success { color: #4ade80; }
+
+    </style>
+</head>
+<body>
+    <div class="blob"></div>
+    <div class="container">
+        <div class="glass-card">
+            <h1>YT Audio</h1>
+            <p class="subtitle">Experience the sound in high definition</p>
+
+            <div class="input-group">
+                <label class="input-label">Video URL</label>
+                <input type="text" id="url" placeholder="Paste YouTube link here..." autocomplete="off">
+            </div>
+
+            <label class="input-label">Audio Quality</label>
+            <div class="quality-selector">
+                <div class="quality-btn active" data-quality="high">Best</div>
+                <div class="quality-btn" data-quality="mid">320kbps</div>
+                <div class="quality-btn" data-quality="low">Small</div>
+            </div>
+
+            <button class="download-btn" id="downloadBtn">
+                <i data-lucide="download"></i>
+                <span>Download Now</span>
+            </button>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-header">
+                    <span>Downloading...</span>
+                    <span id="percentText">0%</span>
+                </div>
+                <div class="filename" id="filenameText">Checking file...</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+                        <span id="speedText">0 MB/s</span>
+                    </div>
+                    <div class="stat-item">
+                        <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
+                        <span id="etaText">00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="statusMsg" class="status-msg"></div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const downloadBtn = document.getElementById('downloadBtn');
+        const urlInput = document.getElementById('url');
+        const qualityBtns = document.querySelectorAll('.quality-btn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const percentText = document.getElementById('percentText');
+        const speedText = document.getElementById('speedText');
+        const etaText = document.getElementById('etaText');
+        const filenameText = document.getElementById('filenameText');
+        const statusMsg = document.getElementById('statusMsg');
+
+        let selectedQuality = 'high';
+        let statusInterval = null;
+
+        // Quality selection logic
+        qualityBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                qualityBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedQuality = btn.dataset.quality;
+            });
+        });
+
+        async function updateStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+
+                if (data.status === 'downloading' || data.status === 'starting') {
+                    progressContainer.style.display = 'block';
+                    progressBar.style.width = data.progress;
+                    percentText.innerText = data.progress;
+                    speedText.innerText = data.speed;
+                    etaText.innerText = data.eta;
+                    filenameText.innerText = data.filename || 'Preparing...';
+                    downloadBtn.disabled = true;
+                    statusMsg.innerText = '';
+                } else if (data.status === 'finished') {
+                    progressBar.style.width = '100%';
+                    percentText.innerText = '100%';
+                    statusMsg.innerText = 'Success! Download completed.';
+                    statusMsg.className = 'status-msg status-success';
+                    downloadBtn.disabled = false;
+                    clearInterval(statusInterval);
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                    }, 5000);
+                } else if (data.status.startsWith('error')) {
+                    statusMsg.innerText = 'Error: ' + data.status.split(': ')[1];
+                    statusMsg.className = 'status-msg status-error';
+                    downloadBtn.disabled = false;
+                    clearInterval(statusInterval);
+                }
+            } catch (err) {
+                console.error('Error polling status:', err);
+            }
+        }
+
+        downloadBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            if (!url) {
+                statusMsg.innerText = 'Please enter a valid URL';
+                statusMsg.className = 'status-msg status-error';
+                return;
+            }
+
+            statusMsg.innerText = '';
+            downloadBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url, quality: selectedQuality })
+                });
+
+                if (response.ok) {
+                    progressContainer.style.display = 'block';
+                    statusInterval = setInterval(updateStatus, 1000);
+                } else {
+                    throw new Error('Failed to start download');
+                }
+            } catch (err) {
+                statusMsg.innerText = err.message;
+                statusMsg.className = 'status-msg status-error';
+                downloadBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "sessions": [
+    {
+      "id": "2799c8bc",
+      "created_at": "2026-05-16T17:53:14.878090900Z",
+      "updated_at": "2026-05-16T20:56:58.482416Z",
+      "model": "qwen-flash",
+      "summary": "reviza este proyecto y correlo a ver si esta funcionando",
+      "message_count": 28
+    }
+  ]
+}

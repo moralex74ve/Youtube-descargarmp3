@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+*.mp3
+*.mp4
+*.webm
+*.m4a
+descargas/
