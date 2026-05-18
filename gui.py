@@ -70,8 +70,6 @@ def run_download(url: str, quality_setting: str):
         ydl_opts["cookiefile"] = tmp.name
     elif cookies_file and os.path.isfile(cookies_file):
         ydl_opts["cookiefile"] = cookies_file
-    else:
-        ydl_opts["cookiesfrombrowser"] = ('firefox',)
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
