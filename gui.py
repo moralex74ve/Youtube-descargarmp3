@@ -2,6 +2,10 @@ import os
 import base64
 import asyncio
 import tempfile
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -64,20 +68,28 @@ def run_download(url: str, quality_setting: str):
     cookies_base64 = os.environ.get("COOKIES_BASE64")
     cookies_file = os.environ.get("COOKIES_FILE")
     if cookies_base64:
-        tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
-        tmp.write(base64.b64decode(cookies_base64).decode("utf-8"))
-        tmp.close()
-        ydl_opts["cookiefile"] = tmp.name
+        try:
+            decoded = base64.b64decode(cookies_base64).decode("utf-8")
+            tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
+            tmp.write(decoded)
+            tmp.close()
+            ydl_opts["cookiefile"] = tmp.name
+            logger.info("Usando COOKIES_BASE64 (%d bytes)", len(decoded))
+        except Exception as e:
+            logger.error("Error al decodificar COOKIES_BASE64: %s", e)
     elif cookies_file and os.path.isfile(cookies_file):
         ydl_opts["cookiefile"] = cookies_file
+        logger.info("Usando COOKIES_FILE: %s", cookies_file)
     else:
         browser = os.environ.get("COOKIES_BROWSER", "firefox")
         ydl_opts["cookiesfrombrowser"] = (browser,)
+        logger.info("Usando cookiesfrombrowser: %s", browser)
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
     except Exception as e:
+        logger.error("Error en descarga: %s", e)
         download_status["status"] = f"error: {str(e)}"
 
 @app.get("/", response_class=HTMLResponse)
